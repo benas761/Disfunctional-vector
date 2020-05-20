@@ -1,10 +1,23 @@
 Vector
 
+
+
 1. Vektorius veikia ne taip, kaip orginalus. 
   - Nesugebėta įgyvendyti emplace() funkcijų
-  -  std::move funkcija vektorių tiesiog nukopijuoja
-  - 8/22 testų neišlaikyti (3 dėl std::move, 2 dėl emplace, 1 dėl template apribojimų, 2 dėl kitko)
+  - 5/22 testų neišlaikyti (push_back() ir insert() dėl std::move, reserve() dėl šablono nepankamumo, emplace ir emplace_back() neįgyvendyti)
   - Neveikia su c++11 for ciklais kai vektorius atsiunčiamas kaip const.
+  
+Funkcijų aprašymai:
+  - operator=: Jei vektoriai nelygūs, ištrina vektorių ir pagal konstruktorių sukuria atsiųsto vektoriaus kopiją. Jei lyginta naudojant std::move, tai dar ištrina atsiųstą vektorių.
+  - assign: siunčiant vektorių daro tą pati kaip = operatorius. Siunčiant 2 (n, m) skaičius vektorių ištrina ir užpildo n vietų m reikšme. Siunčiant iteratorius, ištrina vektorių ir užpildo pagal iteratorių suformuoto sąrašo reikšmes. Siunčiant sąrašą vektorių priskiria sąrašo reikšmėms.
+  - push_back: Į vektoriaus galą įdeda atsiųstą reikšmę. Jei nebėra vietos, vektorių 2 kartus padidina. Naudojant std::move reikšmę vis tiek tiesiog nukopijuoja.
+  - pop_back: ištrina 1 vektoriaus elementą.
+  - clear: ištrina visus elementus ir padaro vektoriaus dydį 0. Nekeičia vektoriaus talpos.
+  - reserve: Jei neužtenka vietos, sukuria naują vektorių, jam priskiria senojo vektoriaus reikšmes, ištrina seną vektorių ir jį priskiria naujam.
+  - resize: Jei vektoriaus dydis mažesnis už nusiųstą skaičių, iškviečia reserve() ir užpildo tuščias vietas 0. Jei vietos daugiau, sumažina vektorių iki atsiųsto dydžio ištrindama netelpančias reikšmes.
+  - Shrink_to_fit: Panašu į rezerve su didesniais už talpą skaičiais, tačiau ši funkcija sumažina vektorių iki tokios talpos, kiek yra elementų.
+  - erase: ištrina reikšmę norimoje pozicijoje arba intervale ir gražina tos pozicijos arba intervalo pradžios iteratorių.
+  - insert: įterpia elementą į poziciją perkeldama visus elementus per vieną. Jei siunčiamas intervalas pagal iteratorius, visi elementai perkeliami per last-first vietų. Jei nepakanka vietos, išsaugomas atstumas tarp vektoriaus pradžios ir pozicijos, padidinamas vektorius ir iš naujo nustatomas pozicijos iteratorius.
 2. Analyzė įvykdyta su time_test.cpp:
     - Su 10000:
         - std::vector: 0.000596235s

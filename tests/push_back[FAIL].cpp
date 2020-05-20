@@ -1,3 +1,4 @@
+// Nepavyko, kadangi nezinau kaip su std::move visu tipu reiksmes atstatyti i pradines (pvz: int/double/float/size_type = 0, string/char="" ir t.t.)
 #include "vector.h"
 #include <iostream>
 #include <iomanip>
