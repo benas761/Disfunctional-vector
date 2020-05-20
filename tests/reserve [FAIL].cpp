@@ -1,3 +1,4 @@
+//Nepavyko, kadangi neaprasyta allocator'ius sablone. 
 #include <cstddef>
 #include <new>
 #include "vector.h"

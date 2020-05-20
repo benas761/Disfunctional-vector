@@ -1,3 +1,4 @@
+// Problema siunciant masyvo pointer'ius kaip iteratorius, kadangi std::distance su jais neveikia. Nezinau ka be jo galiu naudoti.
 #include <iostream>
 #include "vector.h"
  

@@ -3,6 +3,8 @@
 #include <memory>
 #include <algorithm>
 #include <vector>
+#include <cmath>
+
 
 template <class T> class Vector { // The slower and less stable implementation of std::vector! Incompatable with std::move and the C++11 for cycles that use const Vector. Also, emplace doesn't work. Amazing!
 public: // interfeisas
@@ -13,7 +15,7 @@ public: // interfeisas
 
     size_type size() const { return avail - _data; }
     size_type capacity() const { return limit - _data; }
-    size_type max_size() { return std::distance(_data, limit); } // returns the maximum number of elements can be held by vector
+    size_type max_size() { return (pow(2, 31)/sizeof(T) - 1); } // Kadangi negalima lengvai pasiziureti ant kokios masinos veikia, dydis skaiciuojamas pagal 32 bitu sistema
     /// completely wrong, don't even know how to start implementing
     iterator begin() { return _data; }
     const_iterator cbegin() const { return _data; }
@@ -58,6 +60,7 @@ public: // interfeisas
     Vector() { create(); } //Default constructor
     explicit Vector(size_type n, const T& t = T{}) { create(n, t); }//Fill / range constructor
     Vector(const Vector& v) { create(v.cbegin(), v.cend()); } //Copy constructor
+    template <class InputIterator> Vector(InputIterator begin, InputIterator end) { create(begin, end); } // Range copy constructor
     Vector(Vector&& v) { create(v.begin(), v.end()); v.uncreate(); } //Move constructor
     Vector(std::initializer_list<T> l) { create(l); }
 
@@ -74,9 +77,14 @@ public: // interfeisas
         }
         return *this;
     }
-    bool operator==(const Vector& v) {
-        if(this!=&v) return false;
-        return true;
+    Vector<T>& operator=(Vector&& v) {
+        // patikriname ar ne lygu
+        if (&v != this) {
+            uncreate();
+            create(v.cbegin(), v.cend());
+            v.uncreate();
+        }
+        return *this;
     }
     bool operator!=(const Vector& v) {
         if(size()!=v.size()) return true;
@@ -116,7 +124,7 @@ public: // interfeisas
     }
 
     void assign(size_type n, const value_type& val) {
-        if(size()==n) for(T i : this) i = val;
+        if(size()==n) for(iterator i = begin(); i<end(); i++) *i = val;
         else {
             uncreate();
             create(n, val);
@@ -131,7 +139,6 @@ public: // interfeisas
         }
     } //- range ver.
     void assign(std::initializer_list<T> l) {
-        //I have no idea about init list capabilities, gonna avoid using something new...
         uncreate();
         create(l);
     } // - initialiser list ver.
@@ -140,22 +147,21 @@ public: // interfeisas
         if(i<size()) return(_data[i]);
         else throw std::out_of_range("wrong integer at Vector.at()");
     }
-    void push_back(const T& t) {
+    void push_back(const T& t) { // Incompatable with std::move
         if (avail == limit) grow_up();
         unchecked_append(t);
     }
     void pop_back() {
         avail--;
         alloc.destroy(avail);
-        if(size()<=capacity()/2) grow_down();
     } // removes last element from vector and reduces size of vector by one.
 
-    void clear() { 
+    void clear() {
         iterator it = avail;
         while (it != _data) alloc.destroy(--it);
         avail = _data;
     } // - clears the vector by removing all elements from the vector and sets size of vector to zero.
-    void reserve(size_type n) { 
+    void reserve(size_type n) {
         if(capacity()<n) {
             iterator new_data = alloc.allocate(n);
             for(size_type i = 0; i<size(); i++) *(new_data+i)=*(_data+i);
@@ -179,7 +185,7 @@ public: // interfeisas
         }
     } // Pakeicia vektoriaus dydi; ciklas ir distance() gadina laika
 
-    void shrink_to_fit() { 
+    void shrink_to_fit() {
         iterator new_data = alloc.allocate(size());
         for(size_type i = 0; i<size(); i++) *(new_data+i)=*(_data+i);
         size_type sz = size();
@@ -196,7 +202,7 @@ public: // interfeisas
     } // Exchanges the content of vector with contents of vector x.
 
     iterator emplace(const iterator pos, T val) { return insert(pos, val); } /// nesugebejau issiaiskinti kaip funkcijai perduoti nezinoma kintamuju kieki.
-    void emplace_back(T val) { push_back(val); } 
+    void emplace_back(T val) { push_back(val); }
     bool empty() { if(size()==0) return(true); else return(false); }
 
     iterator erase(iterator pos){
@@ -204,7 +210,6 @@ public: // interfeisas
         for(iterator it=pos; it<avail; it++) *it = *(it+1);
         avail--;
         alloc.destroy(avail);
-        if(size()<=capacity()/2) grow_down();
         return _data+n;
     } //erases one element
 
@@ -214,7 +219,6 @@ public: // interfeisas
         for(iterator it = last; it<end(); it++) *(it-n) = *it;
         for(iterator it = end(); it>end()-n; it--) alloc.destroy(it);
         avail -= n;
-        while(size()<=capacity()/2) grow_down();
         return _data+m;
     } // erases a range or elements
 
@@ -310,19 +314,6 @@ private:
         avail = new_avail;
         limit = _data + new_size;
     }
-    void grow_down() {
-        // dvigubai daugiau vietos, nei buvo
-        size_type new_size = std::max((limit - _data) / 2, ptrdiff_t(1));
-        // išskirti naują vietą ir perkopijuoti egzistuojančius elementus
-        iterator new_data = alloc.allocate(new_size);
-        iterator new_avail = std::uninitialized_copy(_data, avail, new_data);
-        // atlaisvinti seną vietą
-        uncreate();
-        // reset'int rodykles į naujai išskirtą vietą
-        _data = new_data;
-        avail = new_avail;
-        limit = _data + new_size;
-  }
     // tariame, kad `avail` point'ina į išskirtą, bet neinicializuotą vietą
     void unchecked_append(const T& val) { alloc.construct(avail++, val); }
 };
