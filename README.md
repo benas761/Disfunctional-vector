@@ -6,7 +6,7 @@ Vector
   - Nesugebėta įgyvendyti emplace() funkcijų
   - 5/22 testų neišlaikyti (push_back() ir insert() dėl std::move, reserve() dėl šablono nepankamumo, emplace ir emplace_back() neįgyvendyti)
   - Neveikia su c++11 for ciklais kai vektorius atsiunčiamas kaip const.
-  
+
 Funkcijų aprašymai:
   - operator=: Jei vektoriai nelygūs, ištrina vektorių ir pagal konstruktorių sukuria atsiųsto vektoriaus kopiją. Jei lyginta naudojant std::move, tai dar ištrina atsiųstą vektorių.
   - assign: siunčiant vektorių daro tą pati kaip = operatorius. Siunčiant 2 (n, m) skaičius vektorių ištrina ir užpildo n vietų m reikšme. Siunčiant iteratorius, ištrina vektorių ir užpildo pagal iteratorių suformuoto sąrašo reikšmes. Siunčiant sąrašą vektorių priskiria sąrašo reikšmėms.
