@@ -1,4 +1,4 @@
-disfunctional vector
+Vector
 
 1. Vektorius veikia ne taip, kaip orginalus. 
   - Nesugebėta įgyvendyti emplace() funkcijų
