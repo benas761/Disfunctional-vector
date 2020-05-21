@@ -1,6 +1,10 @@
 Vector
 
-
+Paleidimo instrukcija:
+- Naudojimui reikia vector.h failą perkelti į programos aplaką ir programoje prirašyti ```#include "vector.h"```
+- Norint paleisti testą reikia:
+   - Ant windows: sukurti projektą su codeblocks, įklijuoti norimo testo kodą į main.cpp, nukopijuoti vector.h į aplankalą ir paleisti.
+   - Ant unix: perkelti vector.h į testų aplankalą ir per konsolę įvesti ```g++ -o main [testo pavadinimas].cpp vector.h``` ir ```./main```.
 
 1. Vektorius veikia ne taip, kaip orginalus. 
   - 3/22 testai neišlaikyti (insert() dėl std::distance naudojimo atstumų tarp iteratorių ieškojimus, reserve() dėl šablono nepankamumo, emplace_back nes kiaulės dar neskraido, nežinau)
@@ -35,6 +39,12 @@ Funkcijų aprašymai:
     - Su 100000000:
         - std::vector: 1.31019s
         - Vector.h: 1.50316s
+    
+Sistemos aprašymas:
+- Intel(R) Core(TM) i5-8265U CPU @ 1.60GH
+- 2 * 4GB DDR4 RAM
+- SSD
+
 3. Kadangi programa skaičiuoja 256 sekundes su 10^7, pamatuoti perrinkimų skaičių su 10^8 labai ilgai užtruktų. Skaičiuojant su 10^6 abu konteiniariai padarė 18 perrinkimų.
 4. Vektorius tinkamai veikia su 3 užduotimi. Modifikuota užduotis yra aplanke "3 uzduotis". Isvestis su 50 studentu:
 ```
