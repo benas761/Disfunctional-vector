@@ -23,7 +23,7 @@ class timer{
 int main() {
 	// Pradėti v1 užpildymo laiko matavimą
 	timer stdVec;
-	unsigned int sz = 100000000;  // 100000000
+	unsigned int sz = 1000000;
 	std::vector<int> v1;
 	for (int i = 1; i <= sz; ++i)
 	  v1.push_back(i);
