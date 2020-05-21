@@ -32,11 +32,11 @@ int main()
     reElections.push_back(President("Franklin Delano Roosevelt", "the USA", 1936));
  
     std::cout << "\nContents:\n";
-    for (President const& president: elections) {
+    for (President& president: elections) {
         std::cout << president.name << " was elected president of "
                   << president.country << " in " << president.year << ".\n";
     }
-    for (President const& president: reElections) {
+    for (President& president: reElections) {
         std::cout << president.name << " was re-elected president of "
                   << president.country << " in " << president.year << ".\n";
     }

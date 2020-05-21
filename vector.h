@@ -6,7 +6,7 @@
 #include <cmath>
 
 
-template <class T> class Vector { // The slower and less stable implementation of std::vector! Incompatable with std::move and the C++11 for cycles that use const Vector. Also, emplace doesn't work. Amazing!
+template <class T> class Vector { // The slower and less stable implementation of std::vector! Incompatable with  the C++11 for cycles that use const Vector. Amazing!
 public: // interfeisas
     typedef T* iterator;
     typedef const T* const_iterator;
@@ -16,7 +16,6 @@ public: // interfeisas
     size_type size() const { return avail - _data; }
     size_type capacity() const { return limit - _data; }
     size_type max_size() { return (pow(2, 31)/sizeof(T) - 1); } // Kadangi negalima lengvai pasiziureti ant kokios masinos veikia, dydis skaiciuojamas pagal 32 bitu sistema
-    /// completely wrong, don't even know how to start implementing
     iterator begin() { return _data; }
     const_iterator cbegin() const { return _data; }
     iterator end() { return avail; }
@@ -147,10 +146,8 @@ public: // interfeisas
         if(i<size()) return(_data[i]);
         else throw std::out_of_range("wrong integer at Vector.at()");
     }
-    void push_back(const T& t) { // Incompatable with std::move
-        if (avail == limit) grow_up();
-        unchecked_append(t);
-    }
+    void push_back(const T& t) { if(avail==limit) grow_up(); unchecked_append(t); }
+    void push_back(T&& t) { emplace_back(std::move(t)); }
     void pop_back() {
         avail--;
         alloc.destroy(avail);
@@ -201,8 +198,22 @@ public: // interfeisas
         *this = temp;
     } // Exchanges the content of vector with contents of vector x.
 
-    iterator emplace(const iterator pos, T val) { return insert(pos, val); } /// nesugebejau issiaiskinti kaip funkcijai perduoti nezinoma kintamuju kieki.
-    void emplace_back(T val) { push_back(val); }
+    template<class... Args> iterator emplace(iterator pos, Args&&... args) {
+        if(avail==limit) {
+            size_type dist = std::distance(begin(), pos);
+            grow_up();
+            pos = begin()+dist;
+        }
+        avail++;
+        for(iterator it = avail; it>pos; it--) *it = *(it-1);
+        alloc.construct(pos, std::forward<Args>(args)...);
+        return pos;
+    }
+    template<class... Args> void emplace_back(Args&&... args) {
+        if(avail==limit) grow_up();
+        alloc.construct(avail, std::forward<Args>(args)...);
+        avail++;
+    }
     bool empty() { if(size()==0) return(true); else return(false); }
 
     iterator erase(iterator pos){
@@ -224,17 +235,8 @@ public: // interfeisas
 
     std::allocator<T> get_allocator() { return alloc; } //returns an allocator associated with vector.
 
-    iterator insert(iterator pos, const value_type& val) {
-        if(size()+1>capacity()) {
-            size_type dist = std::distance(begin(), pos);
-            grow_up();
-            pos = begin()+dist;
-        }
-        avail++;
-        for(iterator it = avail; it>pos; it--) *it = *(it-1);
-        *pos = val;
-        return pos;
-    }
+    iterator insert(iterator pos, const value_type& val) {emplace(pos, val); return pos;}
+    iterator insert(iterator pos, value_type&& val) {emplace(pos, val); return pos;}
     void insert(iterator pos, size_type n, value_type val) {
         if(size()+n>capacity()) {
             // Kadangi pakeiciant masyvo vieta su iteratorius igija nesamoninga reiksme,

@@ -3,14 +3,13 @@ Vector
 
 
 1. Vektorius veikia ne taip, kaip orginalus. 
-  - Nesugebėta įgyvendyti emplace() funkcijų
-  - 5/22 testų neišlaikyti (push_back() ir insert() dėl std::move, reserve() dėl šablono nepankamumo, emplace ir emplace_back() neįgyvendyti)
+  - 3/22 testai neišlaikyti (insert() dėl std::distance naudojimo atstumų tarp iteratorių ieškojimus, reserve() dėl šablono nepankamumo, emplace_back nes kiaulės dar neskraido, nežinau)
   - Neveikia su c++11 for ciklais kai vektorius atsiunčiamas kaip const.
 
 Funkcijų aprašymai:
   - operator=: Jei vektoriai nelygūs, ištrina vektorių ir pagal konstruktorių sukuria atsiųsto vektoriaus kopiją. Jei lyginta naudojant std::move, tai dar ištrina atsiųstą vektorių.
   - assign: siunčiant vektorių daro tą pati kaip = operatorius. Siunčiant 2 (n, m) skaičius vektorių ištrina ir užpildo n vietų m reikšme. Siunčiant iteratorius, ištrina vektorių ir užpildo pagal iteratorių suformuoto sąrašo reikšmes. Siunčiant sąrašą vektorių priskiria sąrašo reikšmėms.
-  - push_back: Į vektoriaus galą įdeda atsiųstą reikšmę. Jei nebėra vietos, vektorių 2 kartus padidina. Naudojant std::move reikšmę vis tiek tiesiog nukopijuoja.
+  - push_back: šaukiamas emplace_back(std::move).
   - pop_back: ištrina 1 vektoriaus elementą.
   - clear: ištrina visus elementus ir padaro vektoriaus dydį 0. Nekeičia vektoriaus talpos.
   - reserve: Jei neužtenka vietos, sukuria naują vektorių, jam priskiria senojo vektoriaus reikšmes, ištrina seną vektorių ir jį priskiria naujam.
@@ -18,6 +17,8 @@ Funkcijų aprašymai:
   - Shrink_to_fit: Panašu į rezerve su didesniais už talpą skaičiais, tačiau ši funkcija sumažina vektorių iki tokios talpos, kiek yra elementų.
   - erase: ištrina reikšmę norimoje pozicijoje arba intervale ir gražina tos pozicijos arba intervalo pradžios iteratorių.
   - insert: įterpia elementą į poziciją perkeldama visus elementus per vieną. Jei siunčiamas intervalas pagal iteratorius, visi elementai perkeliami per last-first vietų. Jei nepakanka vietos, išsaugomas atstumas tarp vektoriaus pradžios ir pozicijos, padidinamas vektorius ir iš naujo nustatomas pozicijos iteratorius.
+  - emplace_back: nusiunčia reikšmę vektoriaus tipo konstruktoriui, kuris įveda reikšmę į vektoriaus pabaigą.
+  - emplace: perkelia visus elementus nuo pozicijos per 1 ir per tipo konstruktorių iterpia reikšmę.
 2. Analyzė įvykdyta su time_test.cpp:
     - Su 10000:
         - std::vector: 0.000596235s
@@ -26,8 +27,8 @@ Funkcijų aprašymai:
         - std::vector: 0.00297857s
         - Vector.h: 0.0014574s
     - Su 1000000:
-        - std::vector: 0.138447s
-        - Vector.h: 0.161238s
+        - std::vector: 0.015446s
+        - Vector.h: 0.0183329s
     - Su 10000000:
         - std::vector: 0.138447s
         - Vector.h: 0.161238s
