@@ -6,7 +6,7 @@
 #include <cmath>
 
 
-template <class T> class Vector { // The slower and less stable implementation of std::vector! Incompatable with  the C++11 for cycles that use const Vector. Amazing!
+template <class T, class Allocator = std::allocator<T>> class Vector { // The slower and less stable implementation of std::vector! Incompatable with  the C++11 for cycles that use const Vector. Amazing!
 public: // interfeisas
     typedef T* iterator;
     typedef const T* const_iterator;
@@ -204,8 +204,8 @@ public: // interfeisas
             grow_up();
             pos = begin()+dist;
         }
-        avail++;
         for(iterator it = avail; it>pos; it--) *it = *(it-1);
+        avail++;
         alloc.construct(pos, std::forward<Args>(args)...);
         return pos;
     }
@@ -235,9 +235,9 @@ public: // interfeisas
 
     std::allocator<T> get_allocator() { return alloc; } //returns an allocator associated with vector.
 
-    iterator insert(iterator pos, const value_type& val) {emplace(pos, val); return pos;}
-    iterator insert(iterator pos, value_type&& val) {emplace(pos, val); return pos;}
-    void insert(iterator pos, size_type n, value_type val) {
+    iterator insert(iterator pos, const value_type& val) {pos = emplace(pos, val); return pos;}
+    iterator insert(iterator pos, value_type&& val) {pos = emplace(pos, val); return pos;}
+    void insert(iterator pos, int n, value_type val) {
         if(size()+n>capacity()) {
             // Kadangi pakeiciant masyvo vieta su iteratorius igija nesamoninga reiksme,
             // apskaiciuoju atstuma tarp begin() ir pos ir po grow priskiriu pos nauja pozicija.
@@ -245,9 +245,9 @@ public: // interfeisas
             while(size()+n>capacity()) grow_up();
             pos = begin()+m;
         }
-        avail+=n;
         //Perkelia viska per n poziciju
-        for(iterator it=avail; it>=pos; it--) *(it+n) = *it;
+        for(iterator it=avail-1; it>=pos; it--) *(it+n) = *it;
+        avail+=n;
         for(iterator it=pos; it<pos+n; it++) *it = val;
     } //fill version
     template <class InputIterator> void insert(iterator pos, InputIterator first, InputIterator last) {
@@ -259,9 +259,9 @@ public: // interfeisas
             while(size()+n>capacity()) grow_up();
             pos = begin()+m;
         }
-        avail+=n;
         //Perkelia viska per n poziciju
         for(iterator it=avail; it>=pos; it--) *(it+n) = *it;
+        avail+=n;
         for(size_type i = 0; i<n; i++) *(pos+i) = *(first+i);
     } //range version
 
