@@ -7,7 +7,7 @@ Paleidimo instrukcija:
    - Ant unix: perkelti vector.h į testų aplankalą ir per konsolę įvesti ```g++ -o main [testo pavadinimas].cpp vector.h``` ir ```./main```.
 
 1. Vektorius veikia ne taip, kaip orginalus. 
-  - 3/22 testai neišlaikyti (insert() dėl std::distance naudojimo atstumų tarp iteratorių ieškojimus, reserve() dėl šablono nepankamumo, emplace_back nes kiaulės dar neskraido, nežinau)
+  - 2/22 testai neišlaikyti (reserve() dėl šablono neveikimo su alokatoriumis, emplace_back dėl  nesuderinamumo su perkelimo kostruktoriaus kūrimu prie to pačio nesukuriant ir kopijavimo konstruktoriaus)
   - Neveikia su c++11 for ciklais kai vektorius atsiunčiamas kaip const.
 
 Funkcijų aprašymai:
